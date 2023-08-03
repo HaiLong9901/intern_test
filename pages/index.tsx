@@ -1,118 +1,153 @@
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import { getRandomCharacter, getRandomString, getRandomStringArray } from "@/utils/data"
+import Image from "next/image"
+import React, { useState, useEffect } from "react"
+import logo from '../public/dtslogo.jpg'
+import { SortAlgorithm, bubbleSort, insertionSort, mergeSort, quickSort, selectionSort } from "@/utils/sort"
 
 export default function Home() {
+  const [randomArray, setRandomArray] = useState<string[] >([])
+  const [startIndex, setStartIndex] = useState<number>(0)
+  const [endIndex, setEndIndex] = useState<number>(10)
+  const [renderArray, setRenderArray] = useState<string[]>([])
+  const [performSort, setPerformSort] = useState<SortAlgorithm>()
+  const [sortedArray, setSortedArray] = useState<string[]>([])
+  const [sortType, setSortType] = useState<string | null>(null)
+
+  useEffect(() => {
+    setRenderArray(randomArray.slice(startIndex, endIndex + 1))
+    setPerformSort(undefined)
+  }, [randomArray])
+  
+  const handleUpdateIndexRender = () => {
+    setRenderArray(randomArray.slice(startIndex, endIndex + 1))
+    setSortedArray(randomArray.slice(startIndex, endIndex + 1))
+  }
+
+  useEffect(() => {
+    if (performSort) {
+      setSortedArray(performSort.sortedArray.slice(startIndex, endIndex + 1))
+    } else setSortedArray([])
+  }, [performSort])
+
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">pages/index.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+      <div className='w-screen h-screen bg-white overflow-x-hidden'>
+        <div>
+
+        </div>
+        <div className=" w-10/12 mx-auto">
+          <div className="w-full py-5 flex items-center">
+            <Image src={logo} width={100} height={50} alt="logo"/>
+            <h2 className="text-black font-bold uppercase grow text-center text-2xl">BÀI TEST ĐẦU VÀO DTS FRESHER DEVELOPER</h2>
+          </div>
+          {/* <div className="flex flex-col gap-2 text-black">
+            <h3 className="text-xl font-bold uppercase">Thông tin ứng viên</h3>
+            <h4>Họ tên: Đỗ Hải Long</h4>
+            <h4>Ngày sinh: 09/09/2001</h4>
+            <h4>Trường: Đại học Bách Khoa Hà Nội</h4>
+          </div> */}
+          <div className="w-full flex gap-10">
+            <div className="w-[20%] text-black flex flex-col gap-5">
+              <button className="btn" onClick={() => {
+                setRandomArray(getRandomStringArray())
+                setSortType(null)
+              }}>Tạo mảng ngẫu nhiên</button>
+              <button className="btn" onClick={() => {
+                const arr:SortAlgorithm = bubbleSort(randomArray)
+                setPerformSort(arr)
+                setSortType("bubble sort")
+              }}>Sắp xếp nổi bọt</button>
+              <button className="btn" onClick={() => {
+                const arr:SortAlgorithm = selectionSort(randomArray)
+                setPerformSort(arr)
+                setSortType("selection sort")
+              }}>Sắp xếp lựa chọn</button>
+              <button className="btn" onClick={() => {
+                const arr:SortAlgorithm = insertionSort(randomArray)
+                setPerformSort(arr)
+                setSortType("insertion sort")
+              }}>Sắp xếp chèn</button>
+              <button className="btn" onClick={() => {
+                const arr:SortAlgorithm = mergeSort(randomArray)
+                setPerformSort(arr)
+                setSortType("merge sort")
+              }}>Sắp xếp chộn</button>
+              <button className="btn" onClick={() => {
+                const arr:SortAlgorithm = quickSort(randomArray)
+                setPerformSort(arr)
+                setSortType("quick sort")
+              }}>Sắp xếp nhanh</button>
+            </div>
+            <div className="grow">
+            <div className="w-full grid grid-cols-2 gap-2">
+                <h4 className="font-bold text-lg text-center">Mảng random</h4>
+                <h4 className="font-bold text-lg text-center">Mảng sắp xếp {sortType}</h4>
+              </div>
+              <div className=" text-black grid grid-cols-2 gap-5">
+              
+              {
+                !randomArray.length ? <div className="w-full flex justify-center items-center h-[200px] bg-blue-100 rounded-md">Chưa tạo mảng random</div> :
+                <div className="w-full">
+                  <div className="flex gap-2 py-3">
+                    <label htmlFor="startIndex" className="font-bold">Từ i = </label>
+                    <input type="number" id="startIndex" className=" w-14 font-bold outline-none" value={startIndex} onChange={(e) => {
+                      if (parseInt(e.target.value) > 999) setStartIndex(999)
+                      else if (parseInt(e.target.value) >= endIndex) setStartIndex(endIndex)
+                      else setStartIndex(parseInt(e.target.value))
+                      }} />
+                    <label htmlFor="endIndex" className="font-bold">Đến i = </label>
+                    <input type="number" id="endIndex" className=" w-14 font-bold outline-none" value={endIndex} onChange={(e) => {
+                      if (parseInt(e.target.value) > 999) setEndIndex(999)
+                      else if (parseInt(e.target.value) <= startIndex) setEndIndex(startIndex)
+                      else setEndIndex(parseInt(e.target.value))
+                      }} />
+                    <button className="px-2 rounded-md bg-blue-200" onClick={handleUpdateIndexRender}>Xem</button>
+                  </div>
+                  <table className="w-full border-solid border-gray-400 border-[1px] rounded-md">
+                  <thead className=" sticky">
+                    <tr>
+                      <th className="text-black w-[40%] bg-blue-200 py-2">i</th>
+                      <th className="text-black w-[60%] bg-blue-200 py-2">A[i]</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {renderArray.map((value, index) => (
+                      <tr>
+                        <td className="text-center py-2 border-y-[1px] border-y-solid border-y-gray-400">{startIndex ? index + startIndex : index}</td>
+                        <td className="text-center py-2 border-y-[1px] border-y-solid border-y-gray-400">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                </div> 
+              }
+
+              {
+                !performSort?.sortedArray.length ? <div className="w-full flex justify-center items-center h-[200px] bg-blue-100 rounded-md">Chưa thực hiện sắp xếp</div> :
+                <div className="w-full">
+                  <h3 className="py-3 font-bold">Thời gian thực hiện: {performSort.performTime} ms</h3>
+                  <table className="w-full border-solid border-gray-400 border-[1px] rounded-md">
+                  <thead className=" sticky">
+                    <tr>
+                      <th className="text-black w-[40%] bg-blue-200 py-2">i</th>
+                      <th className="text-black w-[60%] bg-blue-200 py-2">A[i]</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedArray.map((value, index) => (
+                      <tr>
+                        <td className="text-center py-2 border-y-[1px] border-y-solid border-y-gray-400">{index + startIndex}</td>
+                        <td className="text-center py-2 border-y-[1px] border-y-solid border-y-gray-400">{value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                </div> 
+              }
+            </div>
+            </div>
+            
+          </div>
         </div>
       </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Discover and deploy boilerplate example Next.js&nbsp;projects.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
   )
 }
